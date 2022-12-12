@@ -6,7 +6,6 @@ A chat app with massege encryption functionality
 
 This project is a Flutter application.
 ##
-
 It's a University project built by my Abdulaleem Elmuzoghi and my colleague Abdallah Alatrish
 
 A few resources to get you started if this is your first Flutter project:

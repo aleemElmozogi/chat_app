@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "298095561252",
+    "project_id": "cyper-chat-677fa",
+    "storage_bucket": "cyper-chat-677fa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:298095561252:android:006550223bde850333a6b1",
+        "android_client_info": {
+          "package_name": "com.chat_app.cyper"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "298095561252-phcq1a4ej3o8q7trv8squ865hnn5g5sm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCK_g6jLQk1OjnPrul84wj0_XiyPn05Vrw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "298095561252-phcq1a4ej3o8q7trv8squ865hnn5g5sm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

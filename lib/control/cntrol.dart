@@ -32,51 +32,51 @@
 //   }
 //   // return name;
 // }
-List letters = [
-  'a',
-  'b',
-  'c',
-  'd',
-  'e',
-  'f',
-  'g',
-  'h',
-  'i',
-  'j',
-  'k',
-  'l',
-  'n',
-  'm',
-  'o',
-  'p',
-  'q',
-  'r',
-  's',
-  't',
-  'u',
-  'v',
-  'w',
-  'x',
-  'y',
-  'z',
-];
+// List letters = [
+//   'a',
+//   'b',
+//   'c',
+//   'd',
+//   'e',
+//   'f',
+//   'g',
+//   'h',
+//   'i',
+//   'j',
+//   'k',
+//   'l',
+//   'n',
+//   'm',
+//   'o',
+//   'p',
+//   'q',
+//   'r',
+//   's',
+//   't',
+//   'u',
+//   'v',
+//   'w',
+//   'x',
+//   'y',
+//   'z',
+// ];
 
-String encrypt(String message, int id) {
-  String newDMessage = '';
-
-  for (int x = 0; x < message.length; x++) {
-    newDMessage =
-        newDMessage + letters[(letters.indexOf(message[x]) + id % 26)];
-  }
-  return newDMessage;
-}
-
-String deCrypt(String message, int id) {
-  String newDMessage = '';
-
-  for (int x = 0; x < message.length; x++) {
-    newDMessage =
-        newDMessage + letters[(letters.indexOf(message[x]) - id % 26)];
-  }
-  return newDMessage;
-}
+// String encrypt(String message, int id) {
+//   String newDMessage = '';
+//
+//   for (int x = 0; x < message.length; x++) {
+//     newDMessage =
+//         newDMessage + letters[(letters.indexOf(message[x]) + id % 26)];
+//   }
+//   return newDMessage;
+// }
+//
+// String deCrypt(String message, int id) {
+//   String newDMessage = '';
+//
+//   for (int x = 0; x < message.length; x++) {
+//     newDMessage =
+//         newDMessage + letters[(letters.indexOf(message[x]) - id % 26)];
+//   }
+//   return newDMessage;
+// }

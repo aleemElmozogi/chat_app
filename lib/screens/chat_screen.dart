@@ -1,11 +1,7 @@
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
-
-import '../control/cntrol.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({Key? key}) : super(key: key);
@@ -17,9 +13,12 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final _fireStore = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
+  final Stream<QuerySnapshot> _users =
+      FirebaseFirestore.instance.collection('users').snapshots();
   final _messageTextController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   late User signedInUser;
+  late String _userName;
   late int userId;
   String? messageText;
   @override
@@ -46,11 +45,16 @@ class _ChatScreenState extends State<ChatScreen> {
     try {
       final user = _auth.currentUser;
       signedInUser = (user)!;
-      print('line44 ${signedInUser.email}');
     } catch (e) {
       print(e);
     }
   }
+
+  // Future<void> getUserName(var email) async {
+  //   final Stream<QuerySnapshot> usersEmail =
+  //       FirebaseFirestore.instance.collection('users').snapshots();
+  //   userName = signedInUser.email!;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -83,65 +87,84 @@ class _ChatScreenState extends State<ChatScreen> {
         ],
       ),
       body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            MessageStreamBuilder(
-              fireStore: _fireStore,
-              signedInUser: signedInUser,
-              listViewController: _scrollController,
-            ),
-            Container(
-              decoration: const BoxDecoration(
-                border: Border(
-                  top: BorderSide(
-                    color: Colors.purple,
-                    width: 2,
-                  ),
-                ),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _messageTextController,
-                      decoration: const InputDecoration(
-                          contentPadding: EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 20),
-                          hintText: 'Write your message here...',
-                          border: InputBorder.none),
+        child: FutureBuilder(
+            future: FirebaseFirestore.instance.collection('users').get(),
+            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+              if (snapshot.hasError) {}
+              if (snapshot.hasData) {
+                _users.forEach((element) {
+                  for (var d in element.docs) {
+                    print(d['email'].toString());
+                    print("email: ${signedInUser.email.toString()}");
+                    if (d['email'].toString() ==
+                        signedInUser.email.toString()) {
+                      _userName = d['userName'];
+                      break;
+                    }
+                  }
+                });
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    MessageStreamBuilder(
+                      fireStore: _fireStore,
+                      signedInUser: signedInUser,
+                      listViewController: _scrollController,
                     ),
-                  ),
-                  IconButton(
-                      onPressed: () {
-                        Random random = new Random();
-                        int encryptionId = random.nextInt(20) + 1;
-
-                        _fireStore.collection('messages').add({
-                          'text': encrypt(
-                              _messageTextController.text, encryptionId),
-                          'encryptionId': encryptionId,
-                          'sender': signedInUser.email,
-                          'time': FieldValue.serverTimestamp(),
-                        });
-                        setState(() {
-                          _messageTextController.clear();
-                          _scrollController.jumpTo(
-                            _scrollController.position.maxScrollExtent,
-                          );
-                        });
-                      },
-                      icon: const Icon(
-                        Icons.send_rounded,
-                        color: Colors.purple,
-                      ))
-                ],
-              ),
-            ),
-          ],
-        ),
+                    Container(
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          top: BorderSide(
+                            color: Colors.purple,
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _messageTextController,
+                              decoration: const InputDecoration(
+                                  contentPadding: EdgeInsets.symmetric(
+                                      vertical: 10, horizontal: 20),
+                                  hintText: 'Write your message here...',
+                                  border: InputBorder.none),
+                            ),
+                          ),
+                          IconButton(
+                              onPressed: () async {
+                                if (_messageTextController.text.isNotEmpty) {
+                                  _fireStore.collection('messages').add({
+                                    'text': _messageTextController.text,
+                                    'userName': _userName,
+                                    'email': signedInUser.email.toString(),
+                                    'time': FieldValue.serverTimestamp(),
+                                  });
+                                  setState(() {
+                                    _messageTextController.clear();
+                                    _scrollController.jumpTo(
+                                      _scrollController
+                                          .position.maxScrollExtent,
+                                    );
+                                  });
+                                }
+                              },
+                              icon: const Icon(
+                                Icons.send_rounded,
+                                color: Colors.purple,
+                              ))
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              } else {
+                return Center(child: CircularProgressIndicator());
+              }
+            }),
       ),
     );
   }
@@ -179,17 +202,28 @@ class MessageStreamBuilder extends StatelessWidget {
           final messagesData = snapshot.data!.docs;
 
           for (var message in messagesData) {
-            final messageText = message.get('text');
-            final messageSender = message.get('sender');
-            final encryptionId = message.get('encryptionId');
+            if (message.get('email') == signedInUser.email.toString() ||
+                message.get('email') == 'abd@yahoo.com') {
+              final messageText = message.data().toString().contains('text')
+                  ? message.get('text')
+                  : '';
+              final messageSender =
+                  message.data().toString().contains('userName')
+                      ? message.get('userName')
+                      : '';
 
-            final messageWidget = MessageLine(
-              messageText: deCrypt(messageText.toString(), encryptionId),
-              messageSender: messageSender,
-              isMe: signedInUser.email == messageSender,
-            );
+              final messageSenderEmail =
+                  message.data().toString().contains('email')
+                      ? message.get('email')
+                      : '';
+              final messageWidget = MessageLine(
+                messageText: messageText.toString(),
+                messageSender: messageSender,
+                isMe: signedInUser.email == messageSenderEmail,
+              );
 
-            messageWidgets.add(messageWidget);
+              messageWidgets.add(messageWidget);
+            }
           }
 
           return Expanded(
@@ -202,6 +236,17 @@ class MessageStreamBuilder extends StatelessWidget {
         });
   }
 }
+
+// class UserStream extends StatelessWidget {
+//   const UserStream({Key? key}) : super(key: key);
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return FutureBuilder(
+//       builder: (context) {},
+//     );
+//   }
+// }
 
 class MessageLine extends StatelessWidget {
   const MessageLine({
@@ -252,6 +297,35 @@ class MessageLine extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class testing extends StatelessWidget {
+  testing({Key? key}) : super(key: key);
+  final _auth = FirebaseAuth.instance;
+  final Stream<QuerySnapshot> _usersName =
+      FirebaseFirestore.instance.collection('users').snapshots();
+  late String _userName;
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: _usersName.forEach((element) {
+        for (var d in element.docs) {
+          if (d['email'].toString() == "email") {
+            _userName = d['userName'];
+            break;
+          }
+        }
+      }),
+      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        if (snapshot.hasError) {}
+        if (snapshot.hasData) {
+        } else {
+          return Center(child: CircularProgressIndicator());
+        }
+        return Container();
+      },
     );
   }
 }

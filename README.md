@@ -1,10 +1,11 @@
-# chat_app
+# SYPER CHAT
 
 A chat app with massege encryption functionality
 
-## Getting Started
+##
+It's a University project built by my Abdulaleem Elmuzoghi and my colleague Abdallah Alatrish
+##
 
-This project is a starting point for a Flutter application.
 
 A few resources to get you started if this is your first Flutter project:
 
